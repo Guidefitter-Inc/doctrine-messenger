@@ -126,8 +126,8 @@ class Connection implements ResetInterface
         $now = new \DateTime();
         $availableAt = (clone $now)->modify(sprintf('+%d seconds', $delay / 1000));
 
-        $sql = 'INSERT INTO {$this->configuration['table_name']} (body, headers, queue_name, created_at, available_at)
-                VALUES(?, ?, ?, ?, ?)';
+        $sql = "INSERT INTO {$this->configuration['table_name']} (body, headers, queue_name, created_at, available_at)
+                VALUES(?, ?, ?, ?, ?)";
 
         if ($this->configuration['table_name'] === 'workqueue') {
             $sql .= 'ON CONFLICT ON CONSTRAINT ak_headers_workqueue DO NOTHING;';
