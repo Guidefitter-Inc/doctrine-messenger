@@ -126,17 +126,14 @@ class Connection implements ResetInterface
         $now = new \DateTime();
         $availableAt = (clone $now)->modify(sprintf('+%d seconds', $delay / 1000));
 
-        $queryBuilder = $this->driverConnection->createQueryBuilder()
-            ->insert($this->configuration['table_name'])
-            ->values([
-                'body' => '?',
-                'headers' => '?',
-                'queue_name' => '?',
-                'created_at' => '?',
-                'available_at' => '?',
-            ]);
+        $sql = 'INSERT INTO {$this->configuration['table_name']} (body, headers, queue_name, created_at, available_at)
+                VALUES(?, ?, ?, ?, ?)';
 
-        $this->executeStatement($queryBuilder->getSQL(), [
+        if ($this->configuration['table_name'] === 'workqueue') {
+            $sql .= 'ON CONFLICT ON CONSTRAINT ak_headers_workqueue DO NOTHING;';
+        }
+
+        $this->executeStatement($sql, [
             $body,
             json_encode($headers),
             $this->configuration['queue_name'],
